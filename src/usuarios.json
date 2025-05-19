@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "id": "1747693543778",
+    "email": "Test2234",
+    "nombre": "Admin",
+    "rol": "romina@ejemplo.com"
+  },
+  {
+    "id": "1747693801258",
+    "nombre": "Test2234",
+    "rol": "Admin",
+    "email": "romina@ejemplo.com"
+  },
+  {
+    "id": "1747693815759",
+    "nombre": "Test2234",
+    "rol": "Admin",
+    "email": "romina@ejemplo.com"
+  }
+]
