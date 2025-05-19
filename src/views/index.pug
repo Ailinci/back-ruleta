@@ -1,0 +1,10 @@
+extends layouts/main
+
+block content
+  h1 Bienvenido a Alquilarte
+  if user
+    p Hola, #{user.name}!
+    a(href="/auth/logout") Cerrar sesión
+  else
+    p Por favor 
+      a(href="/auth/login") inicia sesión

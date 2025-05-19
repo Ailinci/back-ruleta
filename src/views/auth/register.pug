@@ -1,0 +1,32 @@
+extends ../layouts/main
+
+block content
+  h1 Registro de Usuario
+  
+  if error
+    .error= error
+  
+  form(method="POST" action="/auth/register")
+    div
+      label(for="name") Nombre:
+      input(type="text" name="name" required)
+    
+    div
+      label(for="email") Email:
+      input(type="email" name="email" required)
+    
+    div
+      label(for="password") Contraseña:
+      input(type="password" name="password" required)
+    
+    div
+      label(for="role") Rol:
+      select(name="role")
+        option(value="secretary") Secretaría
+        option(value="agent") Agente Inmobiliario
+        option(value="rent_admin") Admin de Alquileres
+    
+    button(type="submit") Registrarse
+  
+  p ¿Ya tienes cuenta? 
+    a(href="/auth/login") Inicia Sesión
