@@ -1,0 +1,32 @@
+[
+  {
+    "id": "000",
+    "nombre": "superadmin",
+    "rol": "Admin",
+    "email": "root@backendapp.com"
+  },
+  {
+    "id": "e53977d6-fbed-4818-bad7-fd5c0a08a4b5",
+    "nombre": "Test2234",
+    "rol": "Admin",
+    "email": "romina@ejemplo3.com"
+  },
+  {
+    "id": "ccfe1cab-e42f-4c15-b367-13ccf6e4da85",
+    "nombre": "Test2234",
+    "rol": "Admin",
+    "email": "romina@ejemplo4.com"
+  },
+  {
+    "id": "75c36e39-1400-45c1-86a4-e98813f73425",
+    "nombre": "Test2234",
+    "rol": "Admin",
+    "email": "romina@ejemplo5.com"
+  },
+  {
+    "id": "74cf0179-98ef-4a02-b6b0-d16559dcf1dd",
+    "nombre": "Tester",
+    "rol": "test",
+    "email": "test@test.com"
+  }
+]

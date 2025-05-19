@@ -1,0 +1,15 @@
+extends ../layout
+
+block content
+  h1 Detalle del Usuario
+  p
+    strong Nombre: 
+    | #{usuario.nombre}
+  p
+    strong Rol: 
+    | #{usuario.rol}
+  p
+    strong Email: 
+    | #{usuario.email}
+
+  a(href="/usuarios") ← Volver a la lista

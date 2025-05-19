@@ -1,0 +1,21 @@
+doctype html
+html
+  head
+    title Nuevo Usuario
+  body
+    h1 Crear nuevo usuario
+
+    if error
+      p(style="color:red") #{error}
+
+    form(action="/usuarios" method="POST")
+      label Nombre:
+      input(type="text" name="nombre")
+      br
+      label Rol:
+      input(type="text" name="rol")
+      br
+      label Email:
+      input(type="email" name="email")
+      br
+      button(type="submit") Crear

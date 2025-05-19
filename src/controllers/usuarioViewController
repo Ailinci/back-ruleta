@@ -1,0 +1,38 @@
+const UsuarioService = require('../services/usuarioService');
+
+const UsuarioController = {
+  renderLista(req, res) {
+    const usuarios = UsuarioService.listarUsuarios();
+    res.render('usuarios/index', { usuarios });
+  },
+
+  renderFormularioNuevo(req, res) {
+    res.render('usuarios/formulario');
+  },
+
+  renderDetalle(req, res) {
+    const usuario = UsuarioService.obtenerPorId(req.params.id);
+    if (!usuario) return res.status(404).render('error', { mensaje: 'Usuario no encontrado' });
+    res.render('usuarios/detalle', { usuario });
+  },
+
+  renderFormularioEditar(req, res) {
+    const usuario = UsuarioService.obtenerPorId(req.params.id);
+    if (!usuario) return res.status(404).render('error', { mensaje: 'Usuario no encontrado' });
+    res.render('usuarios/editar', { usuario });
+  },
+
+  crearDesdeFormulario(req, res) {
+    try {
+      const nuevoUsuario = UsuarioService.crearUsuario(req.body);
+      // Redirigir luego de crear
+      res.redirect('/usuarios');
+    } catch (err) {
+      res.status(400).render('usuarios/formulario', {
+        error: err.message
+      });
+    }
+  }
+};
+
+module.exports = UsuarioController;
