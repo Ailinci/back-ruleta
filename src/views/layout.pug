@@ -2,5 +2,19 @@ doctype html
 html
   head
     title Mi App
+    link(rel='stylesheet', href='/css/styles.css')
   body
-    block content
+    header
+      h1 Sistema Alquilarte
+      nav
+        ul(style="list-style: none; padding: 0; display: flex; gap: 20px;")
+          li
+            a(href="/") Inicio
+          li
+            a(href="/usuarios") Usuarios
+          li
+            a(href="/propiedades") Propiedades
+    main
+      block content
+    footer(style="margin-top: 40px; border-top: 1px solid #ecf0f1; padding-top: 20px; color: #7f8c8d;")
+      p Sistema de Gestión Inmobiliaria - Alquilarte &copy; 2025

@@ -1,0 +1,36 @@
+extends ../layout
+
+block content
+  h1 Detalle de la Propiedad
+  
+  p
+    strong Título: 
+    | #{propiedad.titulo}
+  p
+    strong Tipo: 
+    | #{propiedad.tipo}
+  p
+    strong Dirección: 
+    | #{propiedad.direccion}
+  p
+    strong Precio: 
+    | $#{propiedad.precio}
+  p
+    strong Estado: 
+    | #{propiedad.estado}
+  p
+    strong Descripción: 
+    | #{propiedad.descripcion || 'Sin descripción'}
+
+  // Botones de acción
+  div(style="margin-top: 20px;")
+    a(href=`/propiedades/${propiedad.id}/editar` style="padding: 5px 10px; background: #ffc107; color: black; text-decoration: none; border-radius: 4px; margin-right: 10px;") Editar
+    
+    // Formulario para eliminar
+    form(action=`/api/propiedades/${propiedad.id}` method="POST" style="display: inline-block;")
+      input(type="hidden" name="_method" value="DELETE")
+      button(type="submit" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;") Eliminar
+  
+  // Volver a la lista
+  p(style="margin-top: 20px;")
+    a(href="/propiedades") ← Volver a la lista

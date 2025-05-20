@@ -1,0 +1,30 @@
+extends ../layout
+
+block content
+  h1 Lista de Propiedades
+
+  a(href="/propiedades/nueva" style="display:inline-block; margin-bottom: 1em; padding: 0.5em 1em; background: #28a745; color: white; text-decoration: none; border-radius: 4px;") 
+    | + Nueva Propiedad
+
+  if propiedades && propiedades.length
+    table(border="1" cellpadding="10" cellspacing="0")
+      thead
+        tr
+          th Título
+          th Tipo
+          th Dirección
+          th Precio
+          th Estado
+          th Ver
+      tbody
+        each propiedad in propiedades
+          tr
+            td #{propiedad.titulo}
+            td #{propiedad.tipo}
+            td #{propiedad.direccion}
+            td $#{propiedad.precio}
+            td #{propiedad.estado}
+            td
+              a(href=`/propiedades/${propiedad.id}`) Ver
+  else
+    p No hay propiedades cargadas aún.

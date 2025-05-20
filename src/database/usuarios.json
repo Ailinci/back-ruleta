@@ -28,5 +28,11 @@
     "nombre": "Tester",
     "rol": "test",
     "email": "test@test.com"
+  },
+  {
+    "id": "54278723-8274-4122-886b-0f1deded8ec9",
+    "nombre": "ailin",
+    "rol": "vendedora",
+    "email": "ailin@hmail.com"
   }
 ]

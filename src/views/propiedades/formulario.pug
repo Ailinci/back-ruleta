@@ -1,0 +1,46 @@
+doctype html
+html
+  head
+    title #{propiedad && propiedad.id ? 'Editar' : 'Nueva'} Propiedad
+  body
+    h1 #{propiedad && propiedad.id ? 'Editar' : 'Crear nueva'} propiedad
+
+    if error
+      p(style="color:red") #{error}
+
+    form(action=propiedad && propiedad.id ? `/propiedades/${propiedad.id}` : "/propiedades" method="POST")
+      label Título:
+      input(type="text" name="titulo" value=propiedad ? propiedad.titulo : '')
+      br
+      
+      label Tipo:
+      select(name="tipo")
+        each tipo in ['Casa', 'Departamento', 'Local', 'Terreno', 'Oficina']
+          option(value=tipo selected=propiedad && propiedad.tipo === tipo) #{tipo}
+      br
+      
+      label Dirección:
+      input(type="text" name="direccion" value=propiedad ? propiedad.direccion : '')
+      br
+      
+      label Precio:
+      input(type="number" name="precio" step="0.01" value=propiedad ? propiedad.precio : '')
+      br
+      
+      label Descripción:
+      textarea(name="descripcion" rows="4") #{propiedad ? propiedad.descripcion : ''}
+      br
+      
+      label Estado:
+      select(name="estado")
+        each estado in ['Disponible', 'Reservada', 'Alquilada', 'Inactiva']
+          option(value=estado selected=propiedad && propiedad.estado === estado) #{estado}
+      br
+      
+      label ID Propietario:
+      input(type="text" name="id_propietario" value=propiedad ? propiedad.id_propietario : '')
+      br
+      
+      button(type="submit") #{propiedad && propiedad.id ? 'Actualizar' : 'Crear'}
+      
+      a(href="/propiedades" style="margin-left: 10px;") Cancelar

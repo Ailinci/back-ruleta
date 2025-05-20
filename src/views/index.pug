@@ -1,10 +1,49 @@
-extends layouts/main
+extends layout
 
 block content
-  h1 Bienvenido a Alquilarte
-  if user
-    p Hola, #{user.name}!
-    a(href="/auth/logout") Cerrar sesión
-  else
-    p Por favor 
-      a(href="/auth/login") inicia sesión
+  div(style="text-align: center; margin: 2rem 0;")
+    h1 Bienvenido al Sistema de Gestión Alquilarte
+  // Sección de API 
+  div(style="margin-top: 3rem; border-top: 1px solid #eee; padding-top: 2rem;")
+    h2 API REST Disponible
+    p Las siguientes endpoints de API están disponibles para integración:
+    
+    div(style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem;")
+      // API de Usuarios
+      div(style="flex: 1; min-width: 300px; background-color: #f8f9fa; padding: 1rem; border-radius: 6px;")
+        h3(style="margin-top: 0; color: #333;") API de Usuarios
+        ul(style="padding-left: 1.5rem;")
+          li 
+            code GET /api/usuarios
+            span  - Listar todos los usuarios
+          li 
+            code GET /api/usuarios/:id
+            span  - Obtener un usuario por ID
+          li 
+            code POST /api/usuarios
+            span  - Crear un nuevo usuario
+          li 
+            code DELETE /api/usuarios/:id
+            span  - Eliminar un usuario
+        a(href="/api/usuarios" target="_blank" style="display: inline-block; margin-top: 0.8rem; color: #0366d6;") Probar API de Usuarios
+            
+      // API de Propiedades
+      div(style="flex: 1; min-width: 300px; background-color: #f8f9fa; padding: 1rem; border-radius: 6px;")
+        h3(style="margin-top: 0; color: #333;") API de Propiedades
+        ul(style="padding-left: 1.5rem;")
+          li 
+            code GET /api/propiedades
+            span  - Listar todas las propiedades
+          li 
+            code GET /api/propiedades/:id
+            span  - Obtener una propiedad por ID
+          li 
+            code POST /api/propiedades
+            span  - Crear una nueva propiedad
+          li 
+            code PUT /api/propiedades/:id
+            span  - Actualizar una propiedad
+          li 
+            code DELETE /api/propiedades/:id
+            span  - Eliminar una propiedad
+        a(href="/api/propiedades" target="_blank" style="display: inline-block; margin-top: 0.8rem; color: #0366d6;") Probar API de Propiedades
