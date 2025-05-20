@@ -45,6 +45,16 @@ alquilarte-backend/
 | POST   | /api/usuarios      | Crear nuevo usuario         | N/A                       | {nombre, rol, email}         | 201, 400             |
 | DELETE | /api/usuarios/:id  | Eliminar usuario            | N/A                       | N/A                          | 200, 404, 400        |
 
+
+### Propiedades
+| Ruta                      | Descripción                     | Método |
+|---------------------------|----------------------------------|--------|
+| /propiedades              | Lista de propiedades            | GET    |
+| /propiedades/nueva        | Formulario de nueva propiedad   | GET    |
+| /propiedades/:id          | Detalle de propiedad            | GET    |
+| /propiedades/:id/editar   | Formulario de edición           | GET    |
+
+
 ## Rutas de Vistas
 
 | Ruta                   | Descripción                     | Método |
