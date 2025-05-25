@@ -47,13 +47,14 @@ alquilarte-backend/
 
 
 ### Propiedades
-| Ruta                      | Descripción                     | Método |
-|---------------------------|----------------------------------|--------|
-| /propiedades              | Lista de propiedades            | GET    |
-| /propiedades/nueva        | Formulario de nueva propiedad   | GET    |
-| /propiedades/:id          | Detalle de propiedad            | GET    |
-| /propiedades/:id/editar   | Formulario de edición           | GET    |
-
+| Método | Ruta                      | Descripción                     | Parámetros de consulta                                    | Cuerpo de solicitud                                           | Códigos de respuesta |
+|--------|---------------------------|---------------------------------|-----------------------------------------------------------|---------------------------------------------------------------|----------------------|
+| GET    | /api/propiedades          | Listar todas las propiedades    | estado, tipo, id_propietario, precioMin, precioMax       | N/A                                                           | 200                  |
+| GET    | /api/propiedades/:id      | Obtener propiedad por ID        | N/A                                                       | N/A                                                           | 200, 404             |
+| POST   | /api/propiedades          | Crear nueva propiedad           | N/A                                                       | {titulo, descripcion, tipo, direccion, precio, id_propietario, estado} | 201, 400             |
+| PUT    | /api/propiedades/:id      | Actualizar propiedad completa   | N/A                                                       | {titulo, descripcion, tipo, direccion, precio, estado}       | 200, 404, 400        |
+| PATCH  | /api/propiedades/:id/estado | Cambiar estado de propiedad   | N/A                                                       | {estado}                                                      | 200, 400, 404        |
+| DELETE | /api/propiedades/:id      | Eliminar propiedad              | N/A                                                       | N/A                                                           | 200, 404, 400        |
 
 ## Rutas de Vistas
 
@@ -63,8 +64,12 @@ alquilarte-backend/
 | /usuarios/nuevo        | Formulario de nuevo usuario     | GET    |
 | /usuarios/:id          | Detalle de usuario              | GET    |
 | /usuarios/:id/editar   | Formulario de edición           | GET    |
-| /auth/login            | Formulario de inicio de sesión  | GET    |
-| /auth/register         | Formulario de registro          | GET    |
+| /propiedades           | Lista de propiedades            | GET    |
+| /propiedades/nueva     | Formulario de nueva propiedad   | GET    |
+| /propiedades/:id       | Detalle de propiedad            | GET    |
+| /propiedades/:id/editar| Formulario de edición           | GET    |
+| /propiedades           | Crear propiedad desde formulario| POST   |
+| /propiedades/:id       | Actualizar propiedad desde formulario | POST |
 
 ## Requisitos de Instalación y Ejecución
 
@@ -75,7 +80,7 @@ alquilarte-backend/
 ### Instalación
 ```bash
 # Clonar el repositorio
-git clone [URL_DEL_REPOSITORIO]
+git clone https://github.com/Ailinci/back-ruleta.git
 
 # Instalar dependencias
 npm install
@@ -83,11 +88,7 @@ npm install
 
 ### Ejecución
 ```bash
-# Modo desarrollo
 npm run dev
 
-# Modo producción
-npm start
-```
 
 El servidor estará disponible en `http://localhost:5050`
