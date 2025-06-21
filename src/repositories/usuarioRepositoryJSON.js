@@ -12,30 +12,30 @@ const guardarUsuarios = (usuarios) => {
 };
 
 const UsuarioRepositoryJSON = {
-  getAll() {
+  async getAll() {
     return leerUsuarios();
   },
 
-  getById(id) {
+  async getById(id) {
     return leerUsuarios().find(u => u.id === id);
   },
 
-  getByEmail(email) {
+  async getByEmail(email) {
     return leerUsuarios().find(u => u.email === email);
   },
 
-  existsByEmail(email) {
+  async existsByEmail(email) {
     return leerUsuarios().some(u => u.email === email);
   },
 
-  save(usuario) {
+  async save(usuario) {
     const usuarios = leerUsuarios();
     usuarios.push(usuario);
     guardarUsuarios(usuarios);
     return usuario;
   },
 
-  update(id, datos) {
+  async update(id, datos) {
     const usuarios = leerUsuarios();
     const index = usuarios.findIndex(u => u.id === id);
     if (index === -1) return null;
@@ -45,7 +45,7 @@ const UsuarioRepositoryJSON = {
     return usuarios[index];
   },
 
-  delete(id) {
+  async delete(id) {
     const usuarios = leerUsuarios();
     const index = usuarios.findIndex(u => u.id === id);
     if (index === -1) return null;

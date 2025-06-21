@@ -2,9 +2,9 @@ const PropiedadService = require('../services/propiedadService');
 
 const PropiedadController = {
   // Crear una nueva propiedad
-  crearPropiedad(req, res) {
+  async crearPropiedad(req, res) {
     try {
-      const propiedad = PropiedadService.crearPropiedad(req.body);
+      const propiedad = await PropiedadService.crearPropiedad(req.body);
       res.status(201).json(propiedad);
     } catch (err) {
       res.status(400).json({ error: err.message });
@@ -12,33 +12,41 @@ const PropiedadController = {
   },
 
   // Obtener todas las propiedades (con filtros opcionales)
-  obtenerTodas(req, res) {
-    const { estado, tipo, id_propietario, precioMin, precioMax } = req.query;
-    const filtros = {};
+  async obtenerTodas(req, res) {
+    try {
+      const { estado, tipo, id_propietario, precioMin, precioMax } = req.query;
+      const filtros = {};
 
-    if (estado) filtros.estado = estado;
-    if (tipo) filtros.tipo = tipo;
-    if (id_propietario) filtros.id_propietario = id_propietario;
-    if (precioMin) filtros.precioMin = precioMin;
-    if (precioMax) filtros.precioMax = precioMax;
+      if (estado) filtros.estado = estado;
+      if (tipo) filtros.tipo = tipo;
+      if (id_propietario) filtros.id_propietario = id_propietario;
+      if (precioMin) filtros.precioMin = precioMin;
+      if (precioMax) filtros.precioMax = precioMax;
 
-    const propiedades = PropiedadService.listarPropiedades(filtros);
-    res.json(propiedades);
+      const propiedades = await PropiedadService.listarPropiedades(filtros);
+      res.json(propiedades);
+    } catch (err) {
+      res.status(500).json({ error: 'Error al obtener propiedades' });
+    }
   },
 
   // Obtener propiedad por ID
-  obtenerPorId(req, res) {
-    const propiedad = PropiedadService.obtenerPorId(req.params.id);
-    if (!propiedad) {
-      return res.status(404).json({ error: 'Propiedad no encontrada' });
+  async obtenerPorId(req, res) {
+    try {
+      const propiedad = await PropiedadService.obtenerPorId(req.params.id);
+      if (!propiedad) {
+        return res.status(404).json({ error: 'Propiedad no encontrada' });
+      }
+      res.json(propiedad);
+    } catch (err) {
+      res.status(500).json({ error: 'Error al obtener propiedad' });
     }
-    res.json(propiedad);
   },
 
   // Actualizar una propiedad
-  actualizar(req, res) {
+  async actualizar(req, res) {
     try {
-      const propiedad = PropiedadService.actualizarPropiedad(req.params.id, req.body);
+      const propiedad = await PropiedadService.actualizarPropiedad(req.params.id, req.body);
       if (!propiedad) {
         return res.status(404).json({ error: 'Propiedad no encontrada' });
       }
@@ -49,14 +57,14 @@ const PropiedadController = {
   },
 
   // Cambiar el estado de una propiedad
-  cambiarEstado(req, res) {
+  async cambiarEstado(req, res) {
     try {
       const { estado } = req.body;
       if (!estado) {
         return res.status(400).json({ error: 'El estado es requerido' });
       }
 
-      const propiedad = PropiedadService.cambiarEstadoPropiedad(req.params.id, estado);
+      const propiedad = await PropiedadService.cambiarEstadoPropiedad(req.params.id, estado);
       res.json(propiedad);
     } catch (err) {
       res.status(400).json({ error: err.message });
@@ -64,9 +72,9 @@ const PropiedadController = {
   },
 
   // Eliminar una propiedad
-  eliminar(req, res) {
+  async eliminar(req, res) {
     try {
-      const eliminada = PropiedadService.eliminarPropiedad(req.params.id);
+      const eliminada = await PropiedadService.eliminarPropiedad(req.params.id);
       res.json({ mensaje: 'Propiedad eliminada correctamente', propiedad: eliminada });
     } catch (err) {
       res.status(400).json({ error: err.message });

@@ -2,6 +2,7 @@
 const app = express();
 const usuariosRouter = require('./routes/api/usuarioRoutes'); // Importar rutas de usuarios
 const vistasRouter = require('./routes/views/usuarioView'); // Importar rutas de vistas
+require('dotenv').config(); // Cargar variables de entorno desde .env
 
 const propiedadesRouter = require('./routes/api/propiedadRoutes');
 const propiedadesViewRouter = require('./routes/views/propiedadView');
@@ -22,7 +23,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Montar el router de usuarios en la ruta /usuarios
 app.use('/api/usuarios', usuariosRouter);
-
 app.use('/usuarios', vistasRouter);
 
 // /propiedades
