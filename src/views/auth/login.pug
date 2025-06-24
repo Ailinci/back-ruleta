@@ -1,12 +1,55 @@
 extends ../layouts/main
 
 block content
-  h1 Iniciar Sesión
-  form(method="POST" action="/auth/login")
+  h2 Iniciar sesión
+
+  // Formulario clásico
+  form(method='POST', action='/auth/login')
     label(for="email") Email:
-    input(type="email" name="email" required)
-    
+    input(type='email', name='email', placeholder='Email', required)
+
     label(for="password") Contraseña:
-    input(type="password" name="password" required)
-    
-    button(type="submit") Ingresar
+    input(type='password', name='password', placeholder='Contraseña', required)
+
+    button(type='submit') Ingresar (Servidor)
+
+  // Mensaje de error si viene desde render
+  if error
+    p(style='color: red')= error
+
+  // Mostrar token si se generó (desde SSR)
+  if token
+    p Token generado:
+    code= token
+
+  hr
+
+  // Formulario con fetch (SPA)
+  h3 Ingresar con JavaScript (Fetch)
+  form(id="loginForm")
+    input(type="email", name="email", placeholder="Email", required)
+    input(type="password", name="password", placeholder="Contraseña", required)
+    button(type="submit") Ingresar (Fetch)
+
+  script.
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const email = formData.get('email');
+      const password = formData.get('password');
+
+      const res = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        alert('Login exitoso!');
+        window.location.href = '/usuarios'; // Cambiar según destino
+      } else {
+        alert(data.error);
+      }
+    });

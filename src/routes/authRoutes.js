@@ -10,3 +10,20 @@ router.post('/register', authController.register);
 router.get('/logout', authController.logout);
 
 module.exports = router;
+
+const authController = require('../../controllers/authController');
+const { verificarToken, soloRol } = require('../../middlewares/authMiddleware');
+
+router.post('/register', authController.register);
+router.post('/login', authController.login);
+
+// Ruta protegida de ejemplo
+router.get('/perfil', verificarToken, (req, res) => {
+  res.json({ message: `Hola ${req.user.id}, estás autenticado.` });
+});
+
+router.get('/solo-admin', verificarToken, soloRol('admin'), (req, res) => {
+  res.json({ message: 'Bienvenido admin.' });
+});
+
+module.exports = router;

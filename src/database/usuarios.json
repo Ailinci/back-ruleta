@@ -17,4 +17,12 @@
     "rol": "Admin",
     "email": "romina@ejemplo5.com"
   }
+  
+  {
+    "id": 1,
+    "name": "Romina",
+    "email": "romi@mail.com",
+    "password": "$2b$10$FGRJc7PYlkz7DeYJtY4heOo3sHc3NKcUQ4T2KUY1df3TiZVaM/NrG", 
+    "rol": "admin"
+  }
 ]

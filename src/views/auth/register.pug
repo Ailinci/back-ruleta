@@ -30,3 +30,7 @@ block content
   
   p ¿Ya tienes cuenta? 
     a(href="/auth/login") Inicia Sesión
+
+
+    if error
+      p(style='color: red')= error

@@ -13,15 +13,11 @@ const UsuarioController = {
   async obtenerTodos(req, res) {
     try {
       const { email } = req.query;
-
       if (email) {
         const usuario = await UsuarioService.obtenerPorEmail(email);
-        if (!usuario) {
-          return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
+        if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
         return res.json(usuario);
       }
-
       const usuarios = await UsuarioService.listarUsuarios();
       res.json(usuarios);
     } catch (err) {
@@ -39,6 +35,15 @@ const UsuarioController = {
     }
   },
 
+  async actualizarUsuario(req, res) {
+    try {
+      const actualizado = await UsuarioService.actualizarUsuario(req.params.id, req.body);
+      res.json(actualizado);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  },
+
   async eliminar(req, res) {
     try {
       const eliminado = await UsuarioService.eliminarUsuario(req.params.id);
@@ -48,8 +53,11 @@ const UsuarioController = {
       res.status(400).json({ error: err.message });
     }
   },
+};
 
-  // Add more methods here as needed...
+module.exports = UsuarioController;
+
+  },
 };
 
 module.exports = UsuarioController;

@@ -1,73 +1,79 @@
-const User = require('../models/User');
-const express = require('express');
-const router = express.Router();
+const fs = require('fs');
+const path = require('path');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const usuariosPath = path.join(__dirname, '../../data/usuarios.json');
 
 class AuthController {
-  // Mostrar formulario de login
   showLogin(req, res) {
-    res.render('auth/login', { error: null });
+    res.render('auth/login', { error: null, token: null });
   }
 
-  // Procesar login
-  async login(req, res) {
-    const { email, password } = req.body;
-    
-    try {
-      const user = await User.findByEmail(email);
-      
-      if (!user || user.password !== password) {
-        return res.render('auth/login', { 
-          error: 'Email o contraseña incorrectos' 
-        });
-      }
-
-      // Guardar usuario en sesión (simplificado)
-      req.session.user = user;
-      res.redirect('/');
-      
-    } catch (error) {
-      res.render('auth/login', { 
-        error: 'Error al iniciar sesión' 
-      });
-    }
-  }
-
-  // Mostrar formulario de registro
   showRegister(req, res) {
     res.render('auth/register', { error: null });
   }
 
-  // Procesar registro
-  async register(req, res) {
-    const { name, email, password, role } = req.body;
-    
-    try {
-      // Verificar si el usuario ya existe
-      if (await User.findByEmail(email)) {
-        return res.render('auth/register', { 
-          error: 'El email ya está registrado' 
-        });
-      }
+  async login(req, res) {
+    const { email, password } = req.body;
 
-      // Crear nuevo usuario
-      const user = new User({ name, email, password, role });
-      await user.save();
-      
-      // Autologin después de registro
-      req.session.user = user;
-      res.redirect('/');
-      
-    } catch (error) {
-      res.render('auth/register', { 
-        error: 'Error al registrar usuario' 
-      });
+    const usuarios = JSON.parse(fs.readFileSync(usuariosPath, 'utf-8'));
+    const usuario = usuarios.find(u => u.email === email);
+
+    if (!usuario) {
+      // Si la solicitud viene de fetch (API), devolver JSON
+      if (req.headers['content-type'] === 'application/json') {
+        return res.status(401).json({ error: 'Usuario no encontrado' });
+      }
+      return res.render('auth/login', { error: 'Usuario no encontrado', token: null });
     }
+
+    const passwordValida = bcrypt.compareSync(password, usuario.password);
+    if (!passwordValida) {
+      if (req.headers['content-type'] === 'application/json') {
+        return res.status(401).json({ error: 'Contraseña incorrecta' });
+      }
+      return res.render('auth/login', { error: 'Contraseña incorrecta', token: null });
+    }
+
+    const token = jwt.sign(
+      { id: usuario.id, rol: usuario.rol, email: usuario.email },
+      process.env.JWT_SECRET || 'secreto123',
+      { expiresIn: '2h' }
+    );
+
+    if (req.headers['content-type'] === 'application/json') {
+      return res.json({ token });
+    }
+
+    // Si viene del formulario clásico, renderiza
+    res.render('auth/login', { error: null, token });
   }
 
-  // Cerrar sesión
-  logout(req, res) {
-    req.session.destroy();
+  async register(req, res) {
+    const { name, email, password, rol } = req.body;
+    const usuarios = JSON.parse(fs.readFileSync(usuariosPath, 'utf-8'));
+
+    if (usuarios.find(u => u.email === email)) {
+      return res.render('auth/register', { error: 'Email ya registrado' });
+    }
+
+    const nuevoUsuario = {
+      id: usuarios.length + 1,
+      name,
+      email,
+      password: bcrypt.hashSync(password, 10),
+      rol
+    };
+
+    usuarios.push(nuevoUsuario);
+    fs.writeFileSync(usuariosPath, JSON.stringify(usuarios, null, 2));
+
     res.redirect('/auth/login');
+
+
+
+    res.render('auth/error', { error: 'No se encontró el usuario' });
   }
 }
 
