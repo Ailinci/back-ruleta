@@ -1,7 +1,6 @@
 const PropiedadService = require('../services/propiedadService');
 
 const PropiedadController = {
-  // Crear una nueva propiedad
   async crearPropiedad(req, res) {
     try {
       const propiedad = await PropiedadService.crearPropiedad(req.body);
@@ -11,7 +10,6 @@ const PropiedadController = {
     }
   },
 
-  // Obtener todas las propiedades (con filtros opcionales)
   async obtenerTodas(req, res) {
     try {
       const { estado, tipo, id_propietario, precioMin, precioMax } = req.query;
@@ -30,7 +28,6 @@ const PropiedadController = {
     }
   },
 
-  // Obtener propiedad por ID
   async obtenerPorId(req, res) {
     try {
       const propiedad = await PropiedadService.obtenerPorId(req.params.id);
@@ -43,7 +40,6 @@ const PropiedadController = {
     }
   },
 
-  // Actualizar una propiedad
   async actualizar(req, res) {
     try {
       const propiedad = await PropiedadService.actualizarPropiedad(req.params.id, req.body);
@@ -56,7 +52,6 @@ const PropiedadController = {
     }
   },
 
-  // Cambiar el estado de una propiedad
   async cambiarEstado(req, res) {
     try {
       const { estado } = req.body;
@@ -71,7 +66,6 @@ const PropiedadController = {
     }
   },
 
-  // Eliminar una propiedad
   async eliminar(req, res) {
     try {
       const eliminada = await PropiedadService.eliminarPropiedad(req.params.id);

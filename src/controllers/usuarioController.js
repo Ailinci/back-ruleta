@@ -48,8 +48,6 @@ const UsuarioController = {
       res.status(400).json({ error: err.message });
     }
   },
-
-  // Add more methods here as needed...
 };
 
 module.exports = UsuarioController;

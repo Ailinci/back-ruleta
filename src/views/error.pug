@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  div(style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 8px; margin: 2rem 0;")
+    h1(style="color: #dc3545; margin-bottom: 1rem;") ¡Oops! Algo salió mal
+    
+    p(style="font-size: 1.2rem; color: #666; margin-bottom: 2rem;")= mensaje
+    
+    if error && error.stack
+      details(style="text-align: left; background: #fff; padding: 1rem; border-radius: 4px; margin: 1rem 0;")
+        summary(style="cursor: pointer; font-weight: bold; color: #333;") Detalles técnicos
+        pre(style="margin-top: 1rem; font-size: 0.8rem; color: #666;")= error.stack
+    
+    div(style="margin-top: 2rem;")
+      a(href="/" style="display: inline-block; padding: 0.75rem 1.5rem; background: #007bff; color: white; text-decoration: none; border-radius: 4px;") Volver al inicio

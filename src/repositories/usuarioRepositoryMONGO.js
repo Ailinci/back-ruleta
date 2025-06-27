@@ -1,6 +1,4 @@
-// Is here! :D
-
-const { MongoClient, ObjectId } = require('mongodb');
+const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 const uri = process.env.MONGO_URI;
@@ -23,17 +21,23 @@ const UsuarioRepositoryMONGO = {
     try {
       await connect();
       const result = await usuariosCollection.find().toArray();
-      console.log('📦 Found usuarios:', result);
+      console.log('📦 Found usuarios:', result.length);
       return result;
     } catch (err) {
       console.error('❌ Error in getAll:', err);
-      throw err; // This will bubble to your controller and return the 500
+      throw err;
     }
   },
 
   async getById(id) {
     await connect();
-    return usuariosCollection.findOne({ _id: new ObjectId(id) });
+    try {
+      const usuario = await usuariosCollection.findOne({ id: id });
+      return usuario;
+    } catch (error) {
+      console.error('Error buscando usuario por ID:', error);
+      return null;
+    }
   },
 
   async getByEmail(email) {
@@ -56,7 +60,7 @@ const UsuarioRepositoryMONGO = {
   async update(id, datos) {
     await connect();
     const result = await usuariosCollection.findOneAndUpdate(
-      { _id: new ObjectId(id) },
+      { id: id },
       { $set: datos },
       { returnDocument: 'after' }
     );
@@ -65,7 +69,7 @@ const UsuarioRepositoryMONGO = {
 
   async delete(id) {
     await connect();
-    const result = await usuariosCollection.findOneAndDelete({ _id: new ObjectId(id) });
+    const result = await usuariosCollection.findOneAndDelete({ id: id });
     return result.value;
   },
 };

@@ -3,15 +3,59 @@ extends layout
 block content
   div(style="text-align: center; margin: 2rem 0;")
     h1 Bienvenido al Sistema de Gestión Alquilarte
-  // Sección de API 
+    
+    if !usuario
+      div(style="background: #e3f2fd; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;")
+        p(style="margin: 0; color: #1565c0; font-size: 1.1rem;") Para acceder al sistema, necesitas iniciar sesión
+        div(style="margin-top: 1rem;")
+          a(href="/auth/login" style="display: inline-block; padding: 0.75rem 1.5rem; background: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-right: 1rem;") Iniciar Sesión
+          a(href="/auth/register" style="display: inline-block; padding: 0.75rem 1.5rem; background: #28a745; color: white; text-decoration: none; border-radius: 4px;") Registrarse
+    else
+      div(style="background: #d4edda; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;")
+        p(style="margin: 0; color: #155724; font-size: 1.1rem;") ¡Hola #{usuario.nombre}! Bienvenido de vuelta.
+        p(style="margin: 0.5rem 0 0 0; color: #155724;") Rol: #{usuario.rol}
+
+  if usuario
+    // Sección de navegación rápida
+    div(style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0;")
+      a(href="/usuarios" style="display: block; padding: 1.5rem; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; text-decoration: none; color: #333; transition: box-shadow 0.3s;")
+        h3(style="margin: 0 0 0.5rem 0; color: #007bff;") 👥 Gestión de Usuarios
+        p(style="margin: 0; color: #666;") Administra usuarios del sistema, roles y permisos
+      
+      a(href="/propiedades" style="display: block; padding: 1.5rem; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; text-decoration: none; color: #333; transition: box-shadow 0.3s;")
+        h3(style="margin: 0 0 0.5rem 0; color: #28a745;") 🏠 Gestión de Propiedades
+        p(style="margin: 0; color: #666;") Administra el catálogo de propiedades disponibles
+  
+  // Sección de API (siempre visible)
   div(style="margin-top: 3rem; border-top: 1px solid #eee; padding-top: 2rem;")
     h2 API REST Disponible
     p Las siguientes endpoints de API están disponibles para integración:
     
     div(style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem;")
+      // API de Autenticación
+      div(style="flex: 1; min-width: 300px; background-color: #fff3cd; padding: 1rem; border-radius: 6px; border: 1px solid #ffeaa7;")
+        h3(style="margin-top: 0; color: #856404;") 🔐 API de Autenticación
+        ul(style="padding-left: 1.5rem;")
+          li 
+            code POST /auth/api/login
+            span  - Iniciar sesión (retorna JWT)
+          li 
+            code POST /auth/api/register
+            span  - Registrar nuevo usuario
+          li 
+            code GET /auth/api/me
+            span  - Obtener usuario actual
+          li 
+            code POST /auth/api/logout
+            span  - Cerrar sesión
+        p(style="font-size: 0.9rem; color: #856404; margin-top: 0.8rem;") 
+          strong Nota: 
+          | Incluye el token JWT en el header: 
+          code Authorization: Bearer {token}
+          
       // API de Usuarios
       div(style="flex: 1; min-width: 300px; background-color: #f8f9fa; padding: 1rem; border-radius: 6px;")
-        h3(style="margin-top: 0; color: #333;") API de Usuarios
+        h3(style="margin-top: 0; color: #333;") 👥 API de Usuarios
         ul(style="padding-left: 1.5rem;")
           li 
             code GET /api/usuarios
@@ -25,11 +69,12 @@ block content
           li 
             code DELETE /api/usuarios/:id
             span  - Eliminar un usuario
-        a(href="/api/usuarios" target="_blank" style="display: inline-block; margin-top: 0.8rem; color: #0366d6;") Probar API de Usuarios
+        if usuario
+          a(href="/api/usuarios" target="_blank" style="display: inline-block; margin-top: 0.8rem; color: #0366d6;") Probar API de Usuarios
             
       // API de Propiedades
       div(style="flex: 1; min-width: 300px; background-color: #f8f9fa; padding: 1rem; border-radius: 6px;")
-        h3(style="margin-top: 0; color: #333;") API de Propiedades
+        h3(style="margin-top: 0; color: #333;") 🏠 API de Propiedades
         ul(style="padding-left: 1.5rem;")
           li 
             code GET /api/propiedades
@@ -46,4 +91,5 @@ block content
           li 
             code DELETE /api/propiedades/:id
             span  - Eliminar una propiedad
-        a(href="/api/propiedades" target="_blank" style="display: inline-block; margin-top: 0.8rem; color: #0366d6;") Probar API de Propiedades
+        if usuario
+          a(href="/api/propiedades" target="_blank" style="display: inline-block; margin-top: 0.8rem; color: #0366d6;") Probar API de Propiedades
