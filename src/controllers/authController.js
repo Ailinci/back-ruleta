@@ -1,9 +1,6 @@
-const fs = require('fs');
-const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
-const usuariosPath = path.join(__dirname, '../../data/usuarios.json');
+const UsuarioRepositoryMONGO = require('../../repositories/usuarioRepositoryMONGO');
 
 class AuthController {
   showLogin(req, res) {
@@ -17,11 +14,8 @@ class AuthController {
   async login(req, res) {
     const { email, password } = req.body;
 
-    const usuarios = JSON.parse(fs.readFileSync(usuariosPath, 'utf-8'));
-    const usuario = usuarios.find(u => u.email === email);
-
+    const usuario = await UsuarioRepositoryMONGO.getByEmail(email);
     if (!usuario) {
-      // Si la solicitud viene de fetch (API), devolver JSON
       if (req.headers['content-type'] === 'application/json') {
         return res.status(401).json({ error: 'Usuario no encontrado' });
       }
@@ -37,7 +31,7 @@ class AuthController {
     }
 
     const token = jwt.sign(
-      { id: usuario.id, rol: usuario.rol, email: usuario.email },
+      { id: usuario._id, rol: usuario.rol, email: usuario.email },
       process.env.JWT_SECRET || 'secreto123',
       { expiresIn: '2h' }
     );
@@ -46,34 +40,26 @@ class AuthController {
       return res.json({ token });
     }
 
-    // Si viene del formulario clásico, renderiza
     res.render('auth/login', { error: null, token });
   }
 
   async register(req, res) {
     const { name, email, password, rol } = req.body;
-    const usuarios = JSON.parse(fs.readFileSync(usuariosPath, 'utf-8'));
 
-    if (usuarios.find(u => u.email === email)) {
+    const existe = await UsuarioRepositoryMONGO.existsByEmail(email);
+    if (existe) {
       return res.render('auth/register', { error: 'Email ya registrado' });
     }
 
     const nuevoUsuario = {
-      id: usuarios.length + 1,
       name,
       email,
       password: bcrypt.hashSync(password, 10),
       rol
     };
 
-    usuarios.push(nuevoUsuario);
-    fs.writeFileSync(usuariosPath, JSON.stringify(usuarios, null, 2));
-
+    await UsuarioRepositoryMONGO.save(nuevoUsuario);
     res.redirect('/auth/login');
-
-
-
-    res.render('auth/error', { error: 'No se encontró el usuario' });
   }
 }
 

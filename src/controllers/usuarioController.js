@@ -1,63 +1,105 @@
-const UsuarioService = require('../services/usuarioService');
+const Usuario = require('../models/Usuario');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-const UsuarioController = {
-  async crearUsuario(req, res) {
+module.exports = {
+  async registrar(req, res) {
     try {
-      const nuevo = await UsuarioService.crearUsuario(req.body);
-      res.status(201).json(nuevo);
-    } catch (err) {
-      res.status(400).json({ error: err.message });
-    }
-  },
+      const { nombre, email, password } = req.body;
 
-  async obtenerTodos(req, res) {
-    try {
-      const { email } = req.query;
-      if (email) {
-        const usuario = await UsuarioService.obtenerPorEmail(email);
-        if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
-        return res.json(usuario);
+      // Validación básica
+      if (!nombre || !email || !password) {
+        return res.status(400).json({ 
+          error: 'Nombre, email y password son requeridos' 
+        });
       }
-      const usuarios = await UsuarioService.listarUsuarios();
-      res.json(usuarios);
-    } catch (err) {
-      res.status(500).json({ error: 'Error al obtener los usuarios' });
+
+      // Verificar si el usuario ya existe
+      const existeUsuario = await Usuario.findOne({ email });
+      if (existeUsuario) {
+        return res.status(400).json({ 
+          error: 'El email ya está registrado' 
+        });
+      }
+
+      // Hash de la contraseña
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      // Crear nuevo usuario
+      const nuevoUsuario = new Usuario({
+        nombre,
+        email,
+        password: hashedPassword
+      });
+
+      // Guardar en la base de datos
+      const usuarioGuardado = await nuevoUsuario.save();
+
+      // Eliminar password de la respuesta
+      const usuarioResponse = usuarioGuardado.toObject();
+      delete usuarioResponse.password;
+
+      return res.status(201).json(usuarioResponse);
+
+    } catch (error) {
+      console.error('Error en registro:', error);
+      return res.status(500).json({ 
+        error: 'Error interno del servidor' 
+      });
     }
   },
 
-  async obtenerPorId(req, res) {
+  async login(req, res) {
     try {
-      const usuario = await UsuarioService.obtenerPorId(req.params.id);
-      if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
-      res.json(usuario);
-    } catch (err) {
-      res.status(500).json({ error: 'Error al buscar el usuario' });
-    }
-  },
+      const { email, password } = req.body;
 
-  async actualizarUsuario(req, res) {
-    try {
-      const actualizado = await UsuarioService.actualizarUsuario(req.params.id, req.body);
-      res.json(actualizado);
-    } catch (err) {
-      res.status(400).json({ error: err.message });
-    }
-  },
+      // Validación básica
+      if (!email || !password) {
+        return res.status(400).json({ 
+          error: 'Email y password son requeridos' 
+        });
+      }
 
-  async eliminar(req, res) {
-    try {
-      const eliminado = await UsuarioService.eliminarUsuario(req.params.id);
-      if (!eliminado) return res.status(404).json({ error: 'Usuario no encontrado' });
-      res.json({ mensaje: 'Usuario eliminado', eliminado });
-    } catch (err) {
-      res.status(400).json({ error: err.message });
+      // Buscar usuario
+      const usuario = await Usuario.findOne({ email }).select('+password');
+      if (!usuario) {
+        return res.status(401).json({ 
+          error: 'Credenciales inválidas' 
+        });
+      }
+
+      // Comparar contraseñas
+      const passwordValida = await bcrypt.compare(password, usuario.password);
+      if (!passwordValida) {
+        return res.status(401).json({ 
+          error: 'Credenciales inválidas' 
+        });
+      }
+
+      // Crear token JWT
+      const token = jwt.sign(
+        { 
+          id: usuario._id, 
+          email: usuario.email 
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+
+      // Eliminar password de la respuesta
+      const usuarioResponse = usuario.toObject();
+      delete usuarioResponse.password;
+
+      return res.json({ 
+        token,
+        usuario: usuarioResponse 
+      });
+
+    } catch (error) {
+      console.error('Error en login:', error);
+      return res.status(500).json({ 
+        error: 'Error interno del servidor' 
+      });
     }
-  },
+  }
 };
-
-module.exports = UsuarioController;
-
-  },
-};
-
-module.exports = UsuarioController;

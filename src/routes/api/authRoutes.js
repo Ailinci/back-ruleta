@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const UsuarioRepo = require('../repositories/usuarioRepositoryMONGO');
+const UsuarioRepo = require('../../repositories/usuarioRepositoryMONGO');
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // ⚠️ Versión simple SIN hash de contraseña

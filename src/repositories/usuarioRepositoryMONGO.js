@@ -1,5 +1,4 @@
-// Is here! :D
-
+// src/repositories/usuarioRepositoryMONGO.js
 const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 
@@ -10,64 +9,81 @@ let usuariosCollection;
 
 async function connect() {
   if (!usuariosCollection) {
-    console.log('🔌 Connecting to MongoDB...');
-    await client.connect();
-    const db = client.db('alquilarte');
-    usuariosCollection = db.collection('usuarios');
-    console.log('✅ Connected. Collection ready.');
+    try {
+      await client.connect();
+      const db = client.db('alquilarte');
+      usuariosCollection = db.collection('usuarios');
+      console.log('✅ Conexión a MongoDB establecida');
+    } catch (err) {
+      console.error('❌ Error al conectar a MongoDB:', err);
+      throw err;
+    }
   }
 }
 
-const UsuarioRepositoryMONGO = {
-  async getAll() {
+module.exports = {
+  async getByEmail(email) {
     try {
       await connect();
-      const result = await usuariosCollection.find().toArray();
-      console.log('📦 Found usuarios:', result);
-      return result;
+      const user = await usuariosCollection.findOne({ email });
+      if (!user) {
+        console.log('⚠️ Usuario no encontrado para email:', email);
+      }
+      return user;
     } catch (err) {
-      console.error('❌ Error in getAll:', err);
-      throw err; // This will bubble to your controller and return the 500
+      console.error('❌ Error buscando usuario:', err);
+      throw err;
     }
   },
 
-  async getById(id) {
-    await connect();
-    return usuariosCollection.findOne({ _id: new ObjectId(id) });
-  },
-
-  async getByEmail(email) {
-    await connect();
-    return usuariosCollection.findOne({ email });
+  async save(userData) {
+    try {
+      await connect();
+      const result = await usuariosCollection.insertOne(userData);
+      console.log('✔️ Usuario creado con ID:', result.insertedId);
+      return { ...userData, _id: result.insertedId };
+    } catch (err) {
+      console.error('❌ Error guardando usuario:', err);
+      throw err;
+    }
   },
 
   async existsByEmail(email) {
-    await connect();
-    const count = await usuariosCollection.countDocuments({ email });
-    return count > 0;
+    try {
+      await connect();
+      const exists = await usuariosCollection.countDocuments({ email }) > 0;
+      console.log('🔍 Email existe:', exists, 'para', email);
+      return exists;
+    } catch (err) {
+      console.error('❌ Error verificando email:', err);
+      throw err;
+    }
   },
 
-  async save(usuario) {
-    await connect();
-    const result = await usuariosCollection.insertOne(usuario);
-    return { ...usuario, _id: result.insertedId };
+  async updateUser(id, updateData) {
+    try {
+      await connect();
+      const result = await usuariosCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: updateData }
+      );
+      console.log('🔄 Usuario actualizado:', result.modifiedCount, 'registros');
+      return result.modifiedCount > 0;
+    } catch (err) {
+      console.error('❌ Error actualizando usuario:', err);
+      throw err;
+    }
   },
 
-  async update(id, datos) {
-    await connect();
-    const result = await usuariosCollection.findOneAndUpdate(
-      { _id: new ObjectId(id) },
-      { $set: datos },
-      { returnDocument: 'after' }
-    );
-    return result.value;
-  },
-
-  async delete(id) {
-    await connect();
-    const result = await usuariosCollection.findOneAndDelete({ _id: new ObjectId(id) });
-    return result.value;
-  },
+  async closeConnection() {
+    try {
+      if (client) {
+        await client.close();
+        usuariosCollection = null;
+        console.log('🔌 Conexión a MongoDB cerrada');
+      }
+    } catch (err) {
+      console.error('❌ Error cerrando conexión:', err);
+    }
+  }
 };
-
-module.exports = UsuarioRepositoryMONGO;
