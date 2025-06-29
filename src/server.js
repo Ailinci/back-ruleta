@@ -8,7 +8,7 @@ const main = async () => {
     
     // Iniciar el servidor
     const port = process.env.PORT || 4000;
-    app.listen(port, () => {
+    app.listen(port, "0.0.0.0", () => {
       if (process.env.NODE_ENV !== 'test') {
         console.log(`🚀 Servidor corriendo en http://localhost:${port}`);
       }
