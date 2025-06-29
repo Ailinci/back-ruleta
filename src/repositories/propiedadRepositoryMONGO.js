@@ -1,72 +1,33 @@
-const { MongoClient, ObjectId } = require('mongodb');
-require('dotenv').config();
-
-const uri = process.env.MONGO_URI;
-const client = new MongoClient(uri);
-
-let propiedadesCollection;
-
-async function connect() {
-  if (!propiedadesCollection) {
-    await client.connect();
-    const db = client.db('alquilarte');
-    propiedadesCollection = db.collection('propiedades');
-  }
-}
+const Propiedad = require('../models/Propiedad');
 
 const PropiedadRepositoryMONGO = {
   async getAll() {
-    await connect();
-    return await propiedadesCollection.find().toArray();
+    return Propiedad.find();
   },
 
   async getById(id) {
-    await connect();
-    try {
-      return await propiedadesCollection.findOne({ _id: new ObjectId(id) });
-    } catch {
-      return null;
-    }
+    return Propiedad.findById(id);
   },
 
   async getByPropietario(id_propietario) {
-    await connect();
-    return await propiedadesCollection.find({ id_propietario }).toArray();
+    return Propiedad.find({ id_propietario });
   },
 
   async getByEstado(estado) {
-    await connect();
-    return await propiedadesCollection.find({ estado }).toArray();
+    return Propiedad.find({ estado });
   },
 
-  async save(propiedad) {
-    await connect();
-    const result = await propiedadesCollection.insertOne(propiedad);
-    return { ...propiedad, _id: result.insertedId };
+  async save(propiedadData) {
+    const nuevaPropiedad = new Propiedad(propiedadData);
+    return nuevaPropiedad.save();
   },
 
   async update(id, datos) {
-    await connect();
-    try {
-      const result = await propiedadesCollection.findOneAndUpdate(
-        { _id: new ObjectId(id) },
-        { $set: datos },
-        { returnDocument: 'after' }
-      );
-      return result.value;
-    } catch {
-      return null;
-    }
+    return Propiedad.findByIdAndUpdate(id, datos, { new: true });
   },
 
   async delete(id) {
-    await connect();
-    try {
-      const result = await propiedadesCollection.findOneAndDelete({ _id: new ObjectId(id) });
-      return result.value;
-    } catch {
-      return null;
-    }
+    return Propiedad.findByIdAndDelete(id);
   }
 };
 

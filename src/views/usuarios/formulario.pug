@@ -1,21 +1,35 @@
-doctype html
-html
-  head
-    title Nuevo Usuario
-  body
-    h1 Crear nuevo usuario
+extends ../layouts/main
 
-    if error
-      p(style="color:red") #{error}
+block content
+  h1 Crear Nuevo Usuario
+  
+  if error
+    p(style="color:red;")= error
+  
+  -
+    const rolesAmigables = {
+      'admin': 'Administrador',
+      'secretary': 'Secretaría',
+      'agent': 'Agente'
+    }
 
-    form(action="/usuarios" method="POST")
-      label Nombre:
-      input(type="text" name="nombre")
-      br
-      label Rol:
-      input(type="text" name="rol")
-      br
-      label Email:
-      input(type="email" name="email")
-      br
-      button(type="submit") Crear
+  form(method="POST" action="/usuarios")
+    div
+      label(for="nombre") Nombre:
+      input#nombre(type="text" name="nombre" value=usuario ? usuario.nombre : '' required)
+    
+    div
+      label(for="email") Email:
+      input#email(type="email" name="email" value=usuario ? usuario.email : '' required)
+    
+    div
+      label(for="password") Contraseña:
+      input#password(type="password" name="password" required)
+    
+    div
+      label(for="rol") Rol:
+      select#rol(name="rol")
+        each rol in roles
+          option(value=rol selected=(usuario && usuario.rol === rol)) #{rolesAmigables[rol] || rol}
+    
+    button(type="submit") Crear Usuario

@@ -1,95 +1,100 @@
-const PropiedadService = require('../services/propiedadService');
-const Propiedad = require('../models/Propiedad');
+const PropiedadRepository = require('../repositories/propiedadRepositoryMONGO');
+const Propiedad = require('../models/Propiedad'); // El modelo de Mongoose
 
 const PropiedadViewController = {
-  async renderLista(req, res) {
+  async renderLista(req, res, next) {
     try {
-      const { estado, tipo, id_propietario, precioMin, precioMax } = req.query;
-      const filtros = {};
-
-      if (estado) filtros.estado = estado;
-      if (tipo) filtros.tipo = tipo;
-      if (id_propietario) filtros.id_propietario = id_propietario;
-      if (precioMin) filtros.precioMin = precioMin;
-      if (precioMax) filtros.precioMax = precioMax;
-
-      const propiedades = await PropiedadService.listarPropiedades(filtros);
-
-      res.render('propiedades/index', { 
+      const propiedades = await PropiedadRepository.getAll();
+      res.render('propiedades/index', {
         propiedades,
-        filtros,
-        estados: Object.values(Propiedad.ESTADOS),
-        tiposPropiedades: ['Casa', 'Departamento', 'Local', 'Terreno', 'Oficina']
+        estados: Propiedad.schema.path('estado').enumValues,
+        tiposPropiedades: Propiedad.schema.path('tipo').enumValues
       });
     } catch (err) {
-      res.status(500).render('error', { mensaje: 'Error al cargar propiedades' });
+      next(err);
     }
   },
 
   renderFormularioNuevo(req, res) {
     res.render('propiedades/formulario', {
       propiedad: {},
-      estados: Object.values(Propiedad.ESTADOS),
-      tiposPropiedades: ['Casa', 'Departamento', 'Local', 'Terreno', 'Oficina'],
+      estados: Propiedad.schema.path('estado').enumValues,
+      tiposPropiedades: Propiedad.schema.path('tipo').enumValues,
       error: null
     });
   },
 
-  async renderDetalle(req, res) {
+  async renderDetalle(req, res, next) {
     try {
-      const propiedad = await PropiedadService.obtenerPorId(req.params.id);
+      const propiedad = await PropiedadRepository.getById(req.params.id);
       if (!propiedad) {
-        return res.status(404).render('error', { mensaje: 'Propiedad no encontrada' });
+        const err = new Error('Propiedad no encontrada');
+        err.status = 404;
+        return next(err);
       }
       res.render('propiedades/detalle', { propiedad });
     } catch (err) {
-      res.status(500).render('error', { mensaje: 'Error al mostrar la propiedad' });
+      next(err);
     }
   },
 
-  async renderFormularioEditar(req, res) {
+  async renderFormularioEditar(req, res, next) {
     try {
-      const propiedad = await PropiedadService.obtenerPorId(req.params.id);
+      const propiedad = await PropiedadRepository.getById(req.params.id);
       if (!propiedad) {
-        return res.status(404).render('error', { mensaje: 'Propiedad no encontrada' });
+        const err = new Error('Propiedad no encontrada');
+        err.status = 404;
+        return next(err);
       }
 
       res.render('propiedades/formulario', {
         propiedad,
-        estados: Object.values(Propiedad.ESTADOS),
-        tiposPropiedades: ['Casa', 'Departamento', 'Local', 'Terreno', 'Oficina'],
+        estados: Propiedad.schema.path('estado').enumValues,
+        tiposPropiedades: Propiedad.schema.path('tipo').enumValues,
         error: null
       });
     } catch (err) {
-      res.status(500).render('error', { mensaje: 'Error al cargar el formulario' });
+      next(err);
     }
   },
 
-  async crearDesdeFormulario(req, res) {
+  async crearDesdeFormulario(req, res, next) {
     try {
-      await PropiedadService.crearPropiedad(req.body);
+      // Asegúrate de que el propietario esté asignado. 
+      // Aquí asumimos que el id del usuario logueado está en req.user._id
+      const propiedadData = { ...req.body, id_propietario: req.user._id };
+      await PropiedadRepository.save(propiedadData);
       res.redirect('/propiedades');
     } catch (err) {
       res.status(400).render('propiedades/formulario', {
         propiedad: req.body,
-        estados: Object.values(Propiedad.ESTADOS),
-        tiposPropiedades: ['Casa', 'Departamento', 'Local', 'Terreno', 'Oficina'],
+        estados: Propiedad.schema.path('estado').enumValues,
+        tiposPropiedades: Propiedad.schema.path('tipo').enumValues,
         error: err.message
       });
     }
   },
 
-  async actualizarDesdeFormulario(req, res) {
+  async actualizarDesdeFormulario(req, res, next) {
     try {
-      await PropiedadService.actualizarPropiedad(req.params.id, req.body);
+      await PropiedadRepository.update(req.params.id, req.body);
       res.redirect(`/propiedades/${req.params.id}`);
     } catch (err) {
       res.status(400).render('propiedades/formulario', {
-        propiedad: { id: req.params.id, ...req.body },
-        estados: Object.values(Propiedad.ESTADOS),
-        tiposPropiedades: ['Casa', 'Departamento', 'Local', 'Terreno', 'Oficina'],
+        propiedad: { _id: req.params.id, ...req.body },
+        estados: Propiedad.schema.path('estado').enumValues,
+        tiposPropiedades: Propiedad.schema.path('tipo').enumValues,
         error: err.message
       });
+    }
+  },
+
+  async eliminarPropiedad(req, res, next) {
+    try {
+      await PropiedadRepository.delete(req.params.id);
+      res.redirect('/propiedades');
+    } catch(err) {
+      next(err);
     }
   }
 };

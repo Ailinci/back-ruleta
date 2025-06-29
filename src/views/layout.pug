@@ -8,13 +8,29 @@ html
     header
       h1 Sistema Alquilarte
       nav
-        ul(style="list-style: none; padding: 0; display: flex; gap: 20px;")
-          li
-            a(href="/") Inicio
-          li
-            a(href="/usuarios") Usuarios
-          li
-            a(href="/propiedades") Propiedades
+        ul(style="list-style: none; padding: 0; display: flex; gap: 20px; align-items: center;")
+          // Lógica de autenticación
+          if user
+            li
+              a(href="/") Inicio
+            
+            if user.rol === 'admin' || user.rol === 'agent'
+              li
+                a(href="/propiedades") Propiedades
+                
+            if user.rol === 'admin' || user.rol === 'secretary'
+              li
+                a(href="/usuarios") Usuarios
+            
+            li(style="margin-left: auto;") 
+              span(style="margin-right: 15px;") Hola, #{user.nombre}
+            li
+              a(href="/auth/logout" style="background-color: #e74c3c; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;") Logout
+          else
+            li(style="margin-left: auto;")
+              a(href="/auth/login") Login
+            li
+              a(href="/auth/register") Register
     main
       block content
     footer(style="margin-top: 40px; border-top: 1px solid #ecf0f1; padding-top: 20px; color: #7f8c8d;")

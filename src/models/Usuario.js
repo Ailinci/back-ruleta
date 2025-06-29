@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 
 const usuarioSchema = new mongoose.Schema({
   nombre: {
@@ -25,13 +25,15 @@ const usuarioSchema = new mongoose.Schema({
   },
   rol: {
     type: String,
-    enum: ['admin', 'usuario'],
-    default: 'usuario'
+    enum: ['admin', 'secretary', 'agent'],
+    default: 'agent'
   },
   fechaCreacion: {
     type: Date,
     default: Date.now
   }
+}, {
+  collection: 'usuarios'
 });
 
 // Middleware para hashear la contraseña antes de guardar

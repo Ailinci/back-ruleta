@@ -1,80 +1,75 @@
 ﻿require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
 const path = require('path');
-const cookieParser = require('cookie-parser');
+const cors = require('cors');
 const morgan = require('morgan');
-const http = require('http');
-const authMiddleware = require('./middlewares/authMiddleware');
+const mongoose = require('mongoose');
 
-// Configuración de Express
+const connectDB = require('./config/database');
+const authMiddleware = require('./middlewares/authMiddleware');
+const authRoutes = require('./routes/api/authRoutes');
+const usuarioRoutes = require('./routes/api/usuarioRoutes');
+const propiedadRoutes = require('./routes/api/propiedadRoutes');
+
+// Conectar a la base de datos
+connectDB();
+
 const app = express();
-const server = http.createServer(app);
 
 // Middlewares
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-  credentials: true
-}));
+app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
-app.use(cookieParser());
+app.use(require('cookie-parser')());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Conexión a MongoDB optimizada para testing
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
-    // Solo mostrar log cuando no esté en entorno de prueba
-    if (process.env.NODE_ENV !== 'test') {
-      console.log('✅ Conectado a MongoDB');
-    }
-  })
-  .catch(err => {
-    console.error('❌ Error de conexión a MongoDB:', err.message);
-    process.exit(1);
-  });
+// Middleware global para cargar datos de usuario en las vistas
+app.use(authMiddleware.cargarUsuario);
 
-// Rutas públicas
-app.use('/api/auth', require('./routes/api/authRoutes'));
+// Configuración del motor de vistas
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
 
-// Rutas protegidas
-app.use('/api/usuarios', authMiddleware.verificarToken, require('./routes/api/usuarioRoutes'));
+// Rutas de Vistas
+const propiedadViewRoutes = require('./routes/views/propiedadView');
+const usuarioViewRoutes = require('./routes/views/usuarioView');
+const authViewRoutes = require('./routes/views/authView');
 
-// Ruta protegida de ejemplo para el dashboard
+// Ruta principal (protegida)
+app.get('/', authMiddleware.requireAuth, (req, res) => {
+  res.render('index', { title: 'Bienvenido' });
+});
+
+app.use('/propiedades', authMiddleware.requireAuth, authMiddleware.requireRole('admin', 'agent'), propiedadViewRoutes);
+app.use('/usuarios', authMiddleware.requireAuth, authMiddleware.requireRole('admin', 'secretary'), usuarioViewRoutes);
+app.use('/auth', authViewRoutes);
+
+// Rutas de la API
+app.use('/api/auth', authRoutes);
+app.use('/api/usuarios', usuarioRoutes);
+app.use('/api/propiedades', propiedadRoutes);
+
+// Ruta protegida de ejemplo para el dashboard (para testing)
 app.get('/api/protected/dashboard', authMiddleware.verificarToken, (req, res) => {
-  res.status(200).json({ 
+  res.status(200).json({
     success: true,
     message: 'Acceso al dashboard autorizado',
-    user: req.user // Asumiendo que el middleware añade el usuario
+    user: req.user
   });
 });
 
-// Manejo de rutas no encontradas
-app.all('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `Ruta ${req.originalUrl} no encontrada`
-  });
-});
+// Middleware para manejo de errores
+const errorHandler = require('./middlewares/errorHandler');
+app.use(errorHandler);
 
-// Middleware de errores global
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    success: false, 
-    message: 'Error interno del servidor' 
-  });
-});
+let server;
 
-// Funciones para testing
-const startServer = () => {
+const startServer = (port = process.env.PORT || 4000) => {
   return new Promise((resolve) => {
-    const PORT = process.env.PORT || 5000;
-    server.listen(PORT, () => {
+    server = app.listen(port, () => {
       if (process.env.NODE_ENV !== 'test') {
-        console.log(`🚀 Servidor escuchando en puerto ${PORT}`);
+        console.log(`🚀 Servidor corriendo en http://localhost:${port}`);
       }
       resolve(server);
     });
@@ -82,18 +77,21 @@ const startServer = () => {
 };
 
 const stopServer = () => {
-  return new Promise((resolve) => {
-    server.close(() => {
-      mongoose.connection.close();
+  return new Promise((resolve, reject) => {
+    if (server) {
+      server.close(async () => {
+        await mongoose.connection.close();
+        resolve();
+      });
+    } else {
       resolve();
-    });
+    }
   });
 };
 
-// Exportación mejorada
-module.exports = {
-  app,
-  server,
-  startServer,
-  stopServer
-};
+// Iniciar el servidor solo si el script se ejecuta directamente
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = { app, startServer, stopServer };
