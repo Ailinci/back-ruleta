@@ -12,7 +12,7 @@ const usuarioRoutes = require('./routes/api/usuarioRoutes');
 const propiedadRoutes = require('./routes/api/propiedadRoutes');
 
 // Conectar a la base de datos
-connectDB();
+// connectDB(); // This will be moved to server.js
 
 const app = express();
 

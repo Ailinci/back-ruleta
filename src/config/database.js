@@ -1,6 +1,10 @@
 // src/config/database.js
 const mongoose = require('mongoose');
-require('dotenv').config();
+
+// Solo cargar variables de entorno desde .env si no estamos en 'test'
+if (process.env.NODE_ENV !== 'test') {
+  require('dotenv').config();
+}
 
 const MONGO_URI = process.env.MONGO_URI;
 

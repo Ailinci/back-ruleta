@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
   testEnvironment: 'node',
-  setupFilesAfterEnv: [path.resolve(__dirname, 'tests/setup.js')],
+  globalSetup: path.resolve(__dirname, 'tests/setup.js'),
   globalTeardown: path.resolve(__dirname, 'tests/teardown.js'),
   testMatch: [
     '**/tests/**/*.test.js',

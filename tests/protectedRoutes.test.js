@@ -1,4 +1,4 @@
-const { server } = require('../src/app');
+const { app } = require('../src/app');
 const request = require('supertest');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
@@ -9,6 +9,12 @@ describe('Rutas Protegidas con JWT', () => {
   let testUser;
 
   beforeAll(async () => {
+    // Conectarse a la base de datos de prueba en memoria
+    await mongoose.connect(process.env.MONGO_URI);
+
+    // Limpiar la colección antes de crear nuevos usuarios de prueba
+    await Usuario.deleteMany({});
+    
     // Crear usuario de prueba en la base de datos
     testUser = await Usuario.create({
       nombre: 'Test User',
@@ -25,13 +31,12 @@ describe('Rutas Protegidas con JWT', () => {
   });
 
   afterAll(async () => {
-    // Limpiar la base de datos
-    await Usuario.deleteMany({});
+    // Desconectar de la base de datos después de las pruebas
     await mongoose.disconnect();
   });
 
   test('GET /api/protected/dashboard - Acceso con token válido', async () => {
-    const response = await request(server)
+    const response = await request(app)
       .get('/api/protected/dashboard')
       .set('Authorization', `Bearer ${authToken}`);
 
@@ -40,7 +45,7 @@ describe('Rutas Protegidas con JWT', () => {
   });
 
   test('GET /api/protected/dashboard - Acceso sin token', async () => {
-    const response = await request(server)
+    const response = await request(app)
       .get('/api/protected/dashboard');
 
     expect(response.statusCode).toBe(401);
