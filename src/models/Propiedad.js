@@ -1,49 +1,43 @@
-class Propiedad {
-  constructor({ 
-    id, 
-    titulo, 
-    descripcion, 
-    tipo, 
-    direccion, 
-    precio, 
-    estado = 'Disponible',
-    id_propietario 
-  }) {
-    this.id = id;
-    this.titulo = titulo;
-    this.descripcion = descripcion;
-    this.tipo = tipo;
-    this.direccion = direccion;
-    this.precio = precio;
-    this.estado = estado;
-    this.id_propietario = id_propietario;
-  }
+const mongoose = require('mongoose');
 
-  static get ESTADOS() {
-    return {
-      DISPONIBLE: 'Disponible',
-      RESERVADA: 'Reservada',
-      ALQUILADA: 'Alquilada',
-      INACTIVA: 'Inactiva'
-    };
-  }
+const propiedadSchema = new mongoose.Schema({
+  titulo: {
+    type: String,
+    required: [true, 'El título es obligatorio'],
+    trim: true,
+  },
+  descripcion: {
+    type: String,
+    required: [true, 'La descripción es obligatoria'],
+  },
+  tipo: {
+    type: String,
+    required: [true, 'El tipo de propiedad es obligatorio'],
+    enum: ['Casa', 'Apartamento', 'Local Comercial', 'Terreno']
+  },
+  direccion: {
+    type: String,
+    required: [true, 'La dirección es obligatoria'],
+    trim: true
+  },
+  precio: {
+    type: Number,
+    required: [true, 'El precio es obligatorio'],
+  },
+  estado: {
+    type: String,
+    required: true,
+    enum: ['Disponible', 'Reservada', 'Alquilada', 'Inactiva'],
+    default: 'Disponible',
+  },
+  id_propietario: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Usuario',
+    required: true,
+  },
+}, {
+  collection: 'propiedades',
+  timestamps: true // Añade createdAt y updatedAt
+});
 
-  // Método para cambiar el estado de la propiedad
-  cambiarEstado(nuevoEstado) {
-    const estados = Object.values(Propiedad.ESTADOS);
-    
-    if (!estados.includes(nuevoEstado)) {
-      throw new Error(`Estado inválido. Los estados válidos son: ${estados.join(', ')}`);
-    }
-    
-    this.estado = nuevoEstado;
-    return this;
-  }
-
-  // Verificar si la propiedad está disponible para alquiler
-  estaDisponible() {
-    return this.estado === Propiedad.ESTADOS.DISPONIBLE;
-  }
-}
-
-module.exports = Propiedad;
+module.exports = mongoose.model('Propiedad', propiedadSchema);

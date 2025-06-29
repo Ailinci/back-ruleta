@@ -1,0 +1,34 @@
+extends ../layouts/main
+
+block content
+  h1 Editar Usuario
+  
+  if error
+    p(style="color:red;")= error
+  
+  -
+    const rolesAmigables = {
+      'admin': 'Administrador',
+      'secretary': 'Secretaría',
+      'agent': 'Agente'
+    }
+
+  form(method="POST" action=`/usuarios/${usuario._id}`)
+    div
+      label(for="nombre") Nombre:
+      input#nombre(type="text" name="nombre" value=usuario.nombre required)
+    
+    div
+      label(for="email") Email:
+      input#email(type="email" name="email" value=usuario.email required)
+    
+    // No se puede editar la contraseña desde aquí por seguridad.
+    // Se debería hacer en un formulario de "cambiar contraseña".
+
+    div
+      label(for="rol") Rol:
+      select#rol(name="rol")
+        each rol in ['admin', 'secretary', 'agent']
+          option(value=rol selected=(usuario.rol === rol)) #{rolesAmigables[rol] || rol}
+    
+    button(type="submit") Actualizar Usuario 

@@ -1,66 +1,45 @@
-const bcrypt = require('bcrypt');
+const UsuarioRepo = require('../repositories/usuarioRepositoryMONGO');
 const jwt = require('jsonwebtoken');
-const UsuarioRepositoryMONGO = require('../../repositories/usuarioRepositoryMONGO');
+const JWT_SECRET = process.env.JWT_SECRET;
 
-class AuthController {
-  showLogin(req, res) {
-    res.render('auth/login', { error: null, token: null });
+const loginUser = async (email, password) => {
+  const usuario = await UsuarioRepo.getByEmail(email);
+  if (!usuario) {
+    throw new Error('Usuario no encontrado');
   }
 
-  showRegister(req, res) {
-    res.render('auth/register', { error: null });
+  const passwordValido = await usuario.compararPassword(password);
+  if (!passwordValido) {
+    throw new Error('Contraseña incorrecta');
   }
 
-  async login(req, res) {
-    const { email, password } = req.body;
+  const token = jwt.sign(
+    { id: usuario.id, email: usuario.email, rol: usuario.rol },
+    JWT_SECRET,
+    { expiresIn: '1h' }
+  );
 
-    const usuario = await UsuarioRepositoryMONGO.getByEmail(email);
-    if (!usuario) {
-      if (req.headers['content-type'] === 'application/json') {
-        return res.status(401).json({ error: 'Usuario no encontrado' });
-      }
-      return res.render('auth/login', { error: 'Usuario no encontrado', token: null });
-    }
+  return token;
+};
 
-    const passwordValida = bcrypt.compareSync(password, usuario.password);
-    if (!passwordValida) {
-      if (req.headers['content-type'] === 'application/json') {
-        return res.status(401).json({ error: 'Contraseña incorrecta' });
-      }
-      return res.render('auth/login', { error: 'Contraseña incorrecta', token: null });
-    }
+const registerUser = async (userData) => {
+  const { email, rol } = userData;
 
-    const token = jwt.sign(
-      { id: usuario._id, rol: usuario.rol, email: usuario.email },
-      process.env.JWT_SECRET || 'secreto123',
-      { expiresIn: '2h' }
-    );
-
-    if (req.headers['content-type'] === 'application/json') {
-      return res.json({ token });
-    }
-
-    res.render('auth/login', { error: null, token });
+  // Asegurar un rol por defecto si no se proporciona
+  if (!rol) {
+    userData.rol = 'usuario';
   }
 
-  async register(req, res) {
-    const { name, email, password, rol } = req.body;
-
-    const existe = await UsuarioRepositoryMONGO.existsByEmail(email);
-    if (existe) {
-      return res.render('auth/register', { error: 'Email ya registrado' });
-    }
-
-    const nuevoUsuario = {
-      name,
-      email,
-      password: bcrypt.hashSync(password, 10),
-      rol
-    };
-
-    await UsuarioRepositoryMONGO.save(nuevoUsuario);
-    res.redirect('/auth/login');
+  const emailExistente = await UsuarioRepo.existsByEmail(email);
+  if (emailExistente) {
+    throw new Error('El email ya está registrado');
   }
-}
 
-module.exports = new AuthController();
+  const nuevoUsuario = await UsuarioRepo.save(userData);
+  return nuevoUsuario;
+};
+
+module.exports = {
+  loginUser,
+  registerUser
+};

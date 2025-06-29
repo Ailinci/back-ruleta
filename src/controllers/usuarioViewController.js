@@ -1,49 +1,86 @@
-const UsuarioService = require('../services/usuarioService');
+const UsuarioRepository = require('../repositories/usuarioRepositoryMONGO');
+const Usuario = require('../models/Usuario'); // Importar el modelo para acceder al schema
 
-const UsuarioController = {
-  async renderLista(req, res) {
+const UsuarioViewController = {
+  async renderLista(req, res, next) {
     try {
-      const usuarios = await UsuarioService.listarUsuarios();
+      const usuarios = await UsuarioRepository.getAll(); // Suponiendo que existe un getAll
       res.render('usuarios/index', { usuarios });
     } catch (err) {
-      res.status(500).render('error', { mensaje: 'Error al cargar usuarios' });
+      next(err);
     }
   },
 
   renderFormularioNuevo(req, res) {
-    res.render('usuarios/formulario');
+    res.render('usuarios/formulario', { 
+      usuario: {}, 
+      error: null,
+      roles: Usuario.schema.path('rol').enumValues
+    });
   },
 
-  async renderDetalle(req, res) {
+  async renderDetalle(req, res, next) {
     try {
-      const usuario = await UsuarioService.obtenerPorId(req.params.id);
-      if (!usuario) return res.status(404).render('error', { mensaje: 'Usuario no encontrado' });
+      const usuario = await UsuarioRepository.getById(req.params.id);
+      if (!usuario) {
+          const err = new Error('Usuario no encontrado');
+          err.status = 404;
+          return next(err);
+      }
       res.render('usuarios/detalle', { usuario });
     } catch (err) {
-      res.status(500).render('error', { mensaje: 'Error al obtener el usuario' });
+      next(err);
     }
   },
 
-  async renderFormularioEditar(req, res) {
+  async renderFormularioEditar(req, res, next) {
     try {
-      const usuario = await UsuarioService.obtenerPorId(req.params.id);
-      if (!usuario) return res.status(404).render('error', { mensaje: 'Usuario no encontrado' });
-      res.render('usuarios/editar', { usuario });
+      const usuario = await UsuarioRepository.getById(req.params.id);
+      if (!usuario) {
+        const err = new Error('Usuario no encontrado');
+        err.status = 404;
+        return next(err);
+      }
+      res.render('usuarios/editar', { usuario, error: null });
     } catch (err) {
-      res.status(500).render('error', { mensaje: 'Error al obtener el usuario' });
+      next(err);
     }
   },
 
-  async crearDesdeFormulario(req, res) {
+  async crearDesdeFormulario(req, res, next) {
     try {
-      await UsuarioService.crearUsuario(req.body);
+      await UsuarioRepository.save(req.body);
       res.redirect('/usuarios');
     } catch (err) {
       res.status(400).render('usuarios/formulario', {
-        error: err.message
+        usuario: req.body,
+        error: err.message,
+        roles: Usuario.schema.path('rol').enumValues
       });
+    }
+  },
+
+  async actualizarDesdeFormulario(req, res, next) {
+    try {
+        await UsuarioRepository.updateUser(req.params.id, req.body);
+        res.redirect(`/usuarios/${req.params.id}`);
+    } catch (err) {
+        res.status(400).render('usuarios/editar', {
+            usuario: { _id: req.params.id, ...req.body },
+            error: err.message,
+            roles: ['admin', 'secretary', 'agent']
+        });
+    }
+  },
+
+  async eliminarUsuario(req, res, next) {
+    try {
+        await UsuarioRepository.delete(req.params.id);
+        res.redirect('/usuarios');
+    } catch(err) {
+        next(err);
     }
   }
 };
 
-module.exports = UsuarioController;
+module.exports = UsuarioViewController;
