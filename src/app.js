@@ -36,6 +36,10 @@ const propiedadViewRoutes = require('./routes/views/propiedadView');
 const usuarioViewRoutes = require('./routes/views/usuarioView');
 const authViewRoutes = require('./routes/views/authView');
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK' });
+});
+
 // Ruta principal (protegida)
 app.get('/', authMiddleware.requireAuth, (req, res) => {
   res.render('index', { title: 'Bienvenido' });
@@ -67,7 +71,7 @@ let server;
 
 const startServer = (port = process.env.PORT || 4000) => {
   return new Promise((resolve) => {
-    server = app.listen(port, () => {
+    server = app.listen(port, '0.0.0.0', () => {
       if (process.env.NODE_ENV !== 'test') {
         console.log(`🚀 Servidor corriendo en http://localhost:${port}`);
       }
