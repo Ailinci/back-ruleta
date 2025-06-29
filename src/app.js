@@ -12,7 +12,7 @@ const usuarioRoutes = require('./routes/api/usuarioRoutes');
 const propiedadRoutes = require('./routes/api/propiedadRoutes');
 
 // Conectar a la base de datos
-connectDB();
+// connectDB(); // This will be moved to server.js
 
 const app = express();
 
@@ -67,35 +67,4 @@ app.get('/api/protected/dashboard', authMiddleware.verificarToken, (req, res) =>
 const errorHandler = require('./middlewares/errorHandler');
 app.use(errorHandler);
 
-let server;
-
-const startServer = (port = process.env.PORT || 4000) => {
-  return new Promise((resolve) => {
-    server = app.listen(port, '0.0.0.0', () => {
-      if (process.env.NODE_ENV !== 'test') {
-        console.log(`🚀 Servidor corriendo en http://localhost:${port}`);
-      }
-      resolve(server);
-    });
-  });
-};
-
-const stopServer = () => {
-  return new Promise((resolve, reject) => {
-    if (server) {
-      server.close(async () => {
-        await mongoose.connection.close();
-        resolve();
-      });
-    } else {
-      resolve();
-    }
-  });
-};
-
-// Iniciar el servidor solo si el script se ejecuta directamente
-if (require.main === module) {
-  startServer();
-}
-
-module.exports = { app, startServer, stopServer };
+module.exports = { app };
