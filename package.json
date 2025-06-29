@@ -4,14 +4,17 @@
   "description": "Backend para sistema de alquileres",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
     "test": "jest --config=jest.config.js --runInBand --detectOpenHandles",
-    "test:watch": "jest --watch",
+    "test:watch": "jest --watchAll",
     "test:coverage": "jest --coverage",
-    "test:debug": "node --inspect-brk node_modules/jest/bin/jest.js --runInBand --config=jest.config.js"
+    "test:debug": "node --inspect-brk node_modules/jest/bin/jest.js --runInBand --config=jest.config.js",
+    "seed": "node seed.js"
   },
-  "keywords": [],
+  "keywords": [
+    "Node.js"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
