@@ -27,7 +27,7 @@ block content
     a(href=`/propiedades/${propiedad.id}/editar` style="padding: 5px 10px; background: #ffc107; color: black; text-decoration: none; border-radius: 4px; margin-right: 10px;") Editar
     
     // Formulario para eliminar
-    form(action=`/api/propiedades/${propiedad.id}` method="POST" style="display: inline-block;")
+    form(action=`/propiedades/${propiedad.id}/delete` method="POST" style="display: inline-block;")
       input(type="hidden" name="_method" value="DELETE")
       button(type="submit" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;") Eliminar
   
