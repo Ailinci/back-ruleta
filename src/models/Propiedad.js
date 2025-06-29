@@ -13,7 +13,7 @@ const propiedadSchema = new mongoose.Schema({
   tipo: {
     type: String,
     required: [true, 'El tipo de propiedad es obligatorio'],
-    enum: ['Casa', 'Apartamento', 'Local Comercial', 'Terreno']
+    enum: ['Casa', 'Departamento', 'Local Comercial', 'Terreno']
   },
   direccion: {
     type: String,
